@@ -838,7 +838,7 @@ net.Receive("prop2mesh_download", function(len)
 
 	prop2mesh.downloads = prop2mesh.downloads + 1
 
-	prop2mesh.ReadStream(nil, function(data)
+	net.ReadStream(nil, function(data)
 		prop2mesh.handleDownload(crc, data)
 	end)
 end)

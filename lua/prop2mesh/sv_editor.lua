@@ -295,7 +295,7 @@ net.Receive("prop2mesh_upload", function(len, pl)
 	local uploadCRC = net.ReadString()
 	local updateHandler = self.prop2mesh_upload_queue
 
-	prop2mesh.ReadStream(pl, function(data)
+	net.ReadStream(pl, function(data)
 		if not canUpload(pl, self) then
 			return
 		end

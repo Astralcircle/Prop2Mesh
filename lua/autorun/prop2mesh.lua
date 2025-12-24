@@ -45,9 +45,7 @@ if SERVER then
 	AddCSLuaFile("prop2mesh/cl_modelfixer.lua")
 	AddCSLuaFile("prop2mesh/cl_editor.lua")
 	AddCSLuaFile("prop2mesh/compat/construct.lua")
-	AddCSLuaFile("prop2mesh/sh_netstream.lua")
 
-	include("prop2mesh/sh_netstream.lua")
 	include("prop2mesh/sv_entparts.lua")
 	include("prop2mesh/sv_editor.lua")
 
@@ -91,7 +89,6 @@ if SERVER then
 elseif CLIENT then
 	CreateClientConVar("prop2mesh_disable", 0, true, true)
 
-	include("prop2mesh/sh_netstream.lua")
 	include("prop2mesh/cl_meshlab.lua")
 	include("prop2mesh/cl_modelfixer.lua")
 	include("prop2mesh/cl_editor.lua")

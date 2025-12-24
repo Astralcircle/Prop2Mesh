@@ -116,7 +116,7 @@ local allow_disable = GetConVar("prop2mesh_disable_allowed")
 function prop2mesh.sendDownload(pl, self, crc)
     net.Start("prop2mesh_download")
     net.WriteString(crc)
-    prop2mesh.WriteStream(self.prop2mesh_partlists[crc])
+    net.WriteStream(self.prop2mesh_partlists[crc])
     net.Send(pl)
 end
 
