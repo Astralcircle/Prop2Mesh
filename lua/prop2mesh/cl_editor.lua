@@ -77,7 +77,7 @@ local function upstreamProgress()
 			if client.finished then
 				upstreams[crc] = nil
 			else
-				local progress = client.progress / stream.numchunks
+				local progress = client.progress / stream.chunks
 				if max < progress then
 					max = progress
 				end
