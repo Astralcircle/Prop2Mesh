@@ -50,7 +50,7 @@ local function HideIcons() return false end
 
 ]]
 local filecache_data = {}
-local filecache_keys = {}
+prop2mesh.filecache_keys = {}
 
 local upstreams = {}
 
@@ -58,11 +58,11 @@ net.Receive("prop2mesh_upload_start", function(len)
 	local eid = net.ReadUInt(16)
 	for i = 1, net.ReadUInt(8) do
 		local crc = net.ReadString()
-		if filecache_keys[crc] and filecache_keys[crc].data then
+		if prop2mesh.filecache_keys[crc] and prop2mesh.filecache_keys[crc].data then
 			net.Start("prop2mesh_upload")
 			net.WriteUInt(eid, 16)
 			net.WriteString(crc)
-			upstreams[crc] = net.WriteStream(filecache_keys[crc].data)
+			upstreams[crc] = net.WriteStream(prop2mesh.filecache_keys[crc].data)
 			net.SendToServer()
 		end
 	end
@@ -937,7 +937,7 @@ local function attach(pathnode)
 		end
 		local crc = tostring(util.CRC(contents))
 		filecache_data[filecrc] = { crc = crc, data = util.Compress(contents) }
-		filecache_keys[crc] = filecache_data[filecrc]
+		prop2mesh.filecache_keys[crc] = filecache_data[filecrc]
 	end
 	if not filecache_data[filecrc] then
 		chat.AddText(Color(255, 125, 125), "unexpected error!")
