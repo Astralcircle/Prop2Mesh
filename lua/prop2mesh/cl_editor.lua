@@ -923,6 +923,12 @@ end
 local function attach(pathnode)
 	local filepath = pathnode.path
 	local filestr = file.Read(pathnode.path)
+
+	if not filestr then
+		chat.AddText(Color(255, 125, 125), "can't read file!")
+		return
+	end
+	
 	local filecrc = tostring(util.CRC(filestr))
 
 	if not filecache_data[filecrc] then
