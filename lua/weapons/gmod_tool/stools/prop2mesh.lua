@@ -881,7 +881,7 @@ local function BuildPanel_Profiler(self)
 
 		local struct = {}
 		for k, v in ipairs(ents.FindByClass("sent_prop2mesh*")) do
-			local root = CPPI and v:CPPIGetOwner():Nick() or k
+			local root = CPPI and IsValid(v:CPPIGetOwner()) and v:CPPIGetOwner():Nick() or k
 
 			if not struct[root] then
 				local sdata = {
