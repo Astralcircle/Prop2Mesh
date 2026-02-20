@@ -40,7 +40,7 @@ if SERVER then
 	resource.AddWorkshop("2458909924")
 
 	CreateConVar("prop2mesh_disable_allowed", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE}, "prevents prop2mesh data from networking")
-	CreateConVar("sbox_maxprop2mesh", "64", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, nil, 0)
+	CreateConVar("sbox_maxprop2mesh", "32", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, nil, 0)
 
 	AddCSLuaFile("prop2mesh/cl_meshlab.lua")
 	AddCSLuaFile("prop2mesh/cl_modelfixer.lua")
