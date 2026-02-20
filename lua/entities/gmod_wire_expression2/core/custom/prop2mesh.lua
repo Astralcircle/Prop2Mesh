@@ -117,6 +117,10 @@ local function p2mCreate(context, count, pos, ang, uvs, scale, bump)
 		error("controller limit is 64 per entity")
 	end
 
+	if IsValid(context.player) and not context.player:CheckLimit("prop2mesh") then
+		error("controller limit is reached")
+	end
+
 	local self = ents.Create("sent_prop2mesh")
 
 	self:SetNoDraw(true)
@@ -131,6 +135,11 @@ local function p2mCreate(context, count, pos, ang, uvs, scale, bump)
 
 	if CPPI then
 		self:CPPISetOwner(context.player)
+	end
+
+	if IsValid(context.player) then
+		context.player:AddCount("prop2mesh", self)
+		context.player:AddCleanup("sent_prop2mesh", self)
 	end
 
 	self:SetPlayer(context.player)

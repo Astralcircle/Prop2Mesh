@@ -155,6 +155,10 @@ local function getLegacyClips(data)
 end
 
 duplicator.RegisterEntityClass("gmod_ent_p2m", function(ply, data)
+	if IsValid(ply) and not pl:CheckLimit("prop2mesh") then
+		return
+	end
+
 	local compat = ents.Create("sent_prop2mesh_legacy")
 	if not IsValid(compat) then
 		return false
@@ -171,6 +175,11 @@ duplicator.RegisterEntityClass("gmod_ent_p2m", function(ply, data)
 	end
 
 	compat:SetPlayer(ply)
+
+	if IsValid(ply) then
+		pl:AddCount("prop2mesh", compat)
+		pl:AddCleanup("sent_prop2mesh_legacy", compat)
+	end
 
 	local uvs, scale, parts = getLegacyInfo(data.EntityMods)
 

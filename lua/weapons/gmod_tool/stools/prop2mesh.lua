@@ -49,6 +49,9 @@ if SERVER then
 	end
 
 	function TOOL:MakeEnt(tr)
+		local owner = self:GetOwner()
+		if not owner:CheckLimit("prop2mesh") then return end
+
 		local legacy = self:IsLegacyMode()
 		local ent = ents.Create(legacy and "sent_prop2mesh_legacy" or "sent_prop2mesh")
 		local mdl = legacy and "models/hunter/plates/plate.mdl" or self:GetClientInfo("tool_setmodel")
@@ -69,6 +72,8 @@ if SERVER then
 		ent:Spawn()
 		ent:Activate()
 		ent:SetPlayer(self:GetOwner())
+		owner:AddCount("prop2mesh", ent)
+		owner:AddCleanup(legacy and "sent_prop2mesh_legacy" or "sent_prop2mesh", ent)
 
 		local freeze = self:GetClientNumber("tool_setfrozen") ~= 0
 		if freeze then

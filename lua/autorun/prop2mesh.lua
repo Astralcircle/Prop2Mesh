@@ -40,6 +40,7 @@ if SERVER then
 	resource.AddWorkshop("2458909924")
 
 	CreateConVar("prop2mesh_disable_allowed", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE}, "prevents prop2mesh data from networking")
+	CreateConVar("sbox_maxprop2mesh", "64", {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, nil, 0)
 
 	AddCSLuaFile("prop2mesh/cl_meshlab.lua")
 	AddCSLuaFile("prop2mesh/cl_modelfixer.lua")
@@ -62,6 +63,10 @@ if SERVER then
 	end
 
 	local function makeEntity(class, pl, dupedata) -- limits would go here?
+		if IsValid(pl) and not pl:CheckLimit("prop2mesh") then
+			return
+		end
+
 		local self = ents.Create(class)
 		if not (self and self:IsValid()) then
 			return false
@@ -73,6 +78,11 @@ if SERVER then
 		self:Spawn()
 		self:Activate()
 		self:SetPlayer(pl)
+
+		if IsValid(pl) then
+			pl:AddCount("prop2mesh", self)
+			pl:AddCleanup(class, self)
+		end
 
 		return self
 	end
@@ -88,6 +98,11 @@ if SERVER then
 
 elseif CLIENT then
 	CreateClientConVar("prop2mesh_disable", 0, true, true)
+
+	language.Add("Cleanup_sent_prop2mesh", "Prop2Mesh controllers" )
+	language.Add("Cleaned_sent_prop2mesh", "Cleaned Up Prop2Mesh controllers" )
+	language.Add("Cleanup_sent_prop2mesh_legacy", "Prop2Mesh Legacy controllers" )
+	language.Add("Cleaned_sent_prop2mesh_legacy", "Cleaned Up Prop2Mesh Legacy controllers" )
 
 	include("prop2mesh/cl_meshlab.lua")
 	include("prop2mesh/cl_modelfixer.lua")

@@ -225,6 +225,10 @@ return function( instance )
         local ply = instance.player
         local p2mdata = instance.data.p2ms.p2ms
 
+        if IsValid(ply) and not ply:CheckLimit("prop2mesh") then
+            SF.Throw( "controller limit is reached", 3 )
+        end
+
         local ent = ents.Create( "sent_prop2mesh" )
 
         ent:SetNoDraw( true )
@@ -239,6 +243,11 @@ return function( instance )
 
         if CPPI then
             ent:CPPISetOwner( ply )
+        end
+
+        if IsValid(ply) then
+            ply:AddCount("prop2mesh", ent)
+            ply:AddCleanup("sent_prop2mesh", ent)
         end
 
         ent:SetPlayer( ply )
