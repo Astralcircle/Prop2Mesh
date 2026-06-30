@@ -50,13 +50,18 @@ if SERVER then
 
 	function TOOL:MakeEnt(tr)
 		local legacy = self:IsLegacyMode()
-		local ent = ents.Create(legacy and "sent_prop2mesh_legacy" or "sent_prop2mesh")
+		local entName = legacy and "sent_prop2mesh_legacy" or "sent_prop2mesh"
+		local ply = self:GetOwner()
+		if not ply:CheckLimit("prop2mesh") then return end
+
+		local ent = ents.Create(entName)
 		local mdl = legacy and "models/hunter/plates/plate.mdl" or self:GetClientInfo("tool_setmodel")
 		if not IsUselessModel(mdl) then
 			ent:SetModel(mdl)
 		else
 			ent:SetModel("models/p2m/cube.mdl")
 		end
+
 		local ang
 		if math.abs(tr.HitNormal.x) < 0.001 and math.abs(tr.HitNormal.y) < 0.001 then
 			ang = Vector(0, 0, tr.HitNormal.z):Angle()
@@ -64,11 +69,15 @@ if SERVER then
 			ang = tr.HitNormal:Angle()
 		end
 		ang.p = ang.p + 90
+
 		ent:SetAngles(ang)
 		ent:SetPos(tr.HitPos - ent:LocalToWorld(Vector(0, 0, ent:OBBMins().z)))
 		ent:Spawn()
 		ent:Activate()
-		ent:SetPlayer(self:GetOwner())
+		ent:SetPlayer(ply)
+
+		if ply.AddCleanup then ply:AddCleanup(entName, ent) end
+		if ply.AddCount then ply:AddCount("prop2mesh", ent) end
 
 		local freeze = self:GetClientNumber("tool_setfrozen") ~= 0
 		if freeze then

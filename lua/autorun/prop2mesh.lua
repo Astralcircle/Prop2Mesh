@@ -1,12 +1,5 @@
---[[
-
-]]
 if not prop2mesh then prop2mesh = {} end
 
-
---[[
-
-]]
 prop2mesh.defaultmat = "hunter/myplastic"
 
 prop2mesh.enablelog = false
@@ -32,14 +25,11 @@ function prop2mesh.getBodygroupMask(ent)
 	return mask
 end
 
-
---[[
-
-]]
 if SERVER then
 	resource.AddWorkshop("2458909924")
 
 	CreateConVar("prop2mesh_disable_allowed", 0, {FCVAR_NOTIFY, FCVAR_ARCHIVE}, "prevents prop2mesh data from networking")
+	CreateConVar("sbox_maxprop2mesh", 50, {FCVAR_NOTIFY, FCVAR_ARCHIVE})
 
 	AddCSLuaFile("prop2mesh/cl_meshlab.lua")
 	AddCSLuaFile("prop2mesh/cl_modelfixer.lua")
@@ -63,20 +53,23 @@ if SERVER then
 		}
 	end
 
-	local function makeEntity(class, pl, dupedata) -- limits would go here?
-		local self = ents.Create(class)
-		if not (self and self:IsValid()) then
-			return false
-		end
+	local function makeEntity(class, ply, dupedata)
+		if not ply:CheckLimit("prop2mesh") then return false end
+
+		local ent = ents.Create(class)
+		if not IsValid(ent) then return false end
 
 		if dupedata then
-			duplicator.DoGeneric(self, dupedata)
+			duplicator.DoGeneric(ent, dupedata)
 		end
-		self:Spawn()
-		self:Activate()
-		self:SetPlayer(pl)
+		ent:Spawn()
+		ent:Activate()
+		ent:SetPlayer(ply)
 
-		return self
+		if ply.AddCleanup then ply:AddCleanup(class, ent) end
+		if ply.AddCount then ply:AddCount("prop2mesh", ent) end
+
+		return ent
 	end
 	prop2mesh.makeEntity = makeEntity
 
@@ -132,6 +125,9 @@ elseif CLIENT then
 		E2Helper.Descriptions["p2mSetMaterial(e:s)"] = backcompat
 		E2Helper.Descriptions["p2mSetMeshScale(e:n)"] = backcompat
 	end)
+
+	language.Add("Cleanup_sent_prop2mesh", "Prop2Mesh Controllers")
+	language.Add("Cleanup_sent_prop2mesh_legacy", "Prop2Mesh Legacy Controllers")
 end
 
 --[[
