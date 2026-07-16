@@ -117,6 +117,9 @@ local function p2mCreate(context, count, pos, ang, uvs, scale, bump)
 		error("controller limit is 64 per entity")
 	end
 
+	local ply = context.player
+	if not ply:CheckLimit("prop2mesh") then return end
+
 	local self = ents.Create("sent_prop2mesh")
 
 	self:SetNoDraw(true)
@@ -130,10 +133,13 @@ local function p2mCreate(context, count, pos, ang, uvs, scale, bump)
 	end
 
 	if CPPI then
-		self:CPPISetOwner(context.player)
+		self:CPPISetOwner(ply)
 	end
 
-	self:SetPlayer(context.player)
+	if ply.AddCleanup then ply:AddCleanup("sent_prop2mesh", self) end
+	if ply.AddCount then ply:AddCount("prop2mesh", self) end
+
+	self:SetPlayer(ply)
 	self:SetSolid(SOLID_NONE)
 	self:SetMoveType(MOVETYPE_NONE)
 	self:DrawShadow(false)

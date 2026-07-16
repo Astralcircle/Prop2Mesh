@@ -225,6 +225,8 @@ return function( instance )
         local ply = instance.player
         local p2mdata = instance.data.p2ms.p2ms
 
+        if not ply:CheckLimit( "prop2mesh" ) then return end
+
         local ent = ents.Create( "sent_prop2mesh" )
 
         ent:SetNoDraw( true )
@@ -240,6 +242,9 @@ return function( instance )
         if CPPI then
             ent:CPPISetOwner( ply )
         end
+
+        if ply.AddCleanup then ply:AddCleanup( "sent_prop2mesh", ent ) end
+        if ply.AddCount then ply:AddCount( "prop2mesh", ent ) end
 
         ent:SetPlayer( ply )
         ent:SetSolid( SOLID_NONE )
