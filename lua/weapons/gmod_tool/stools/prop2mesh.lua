@@ -29,7 +29,6 @@ if SERVER then
 
 	local select_color_p2m = Color(0, 0, 255, 255)
 	local select_material  = "models/debug/debugwhite"
-	local select_candelete = { prop_physics = true }
 
 	local function checkOwner(ply, ent)
 		if CPPI then
@@ -307,7 +306,7 @@ if SERVER then
 					v.mode = RENDERMODE_TRANSALPHA
 				end
 				self:DeselectEntity(k, alp)
-				if rmv and select_candelete[k:GetClass()] then
+				if rmv then
 					SafeRemoveEntity(k)
 				end
 			end
@@ -390,7 +389,7 @@ if SERVER then
 									v.mode = RENDERMODE_TRANSALPHA
 								end
 								self:DeselectEntity(k, alp)
-								if rmv and select_candelete[k:GetClass()] then
+								if rmv then
 									SafeRemoveEntity(k)
 								end
 							end
@@ -762,7 +761,7 @@ local function BuildPanel_ToolSettings(self)
 		cbox.Label:SetTextColor(value and Color(255, 0, 0) or nil)
 	end
 
-	local cbox = pnl:CheckBox("Remove selected props when done", "prop2mesh_tool_setautoremove")
+	local cbox = pnl:CheckBox("Remove selected ents when done", "prop2mesh_tool_setautoremove")
 	cbox.OnChange = function(_, value)
 		cbox.Label:SetTextColor(value and Color(255, 0, 0) or nil)
 	end
