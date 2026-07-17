@@ -334,6 +334,53 @@ function ENT:RemoveController(index)
 	return true
 end
 
+function ENT:MergeControllers(fromIndex, intoIndex)
+	fromIndex = tonumber(fromIndex)
+	intoIndex = tonumber(intoIndex)
+
+	-- both controllers must exist, and merging into itself makes no sense
+	local fromInfo = fromIndex and self.prop2mesh_controllers[fromIndex]
+	local intoInfo = intoIndex and self.prop2mesh_controllers[intoIndex]
+	if not fromInfo or not intoInfo or fromIndex == intoIndex then
+		return false
+	end
+
+	-- decompress both partlists so their part arrays can be concatenated
+	local fromData = self:GetControllerData(fromIndex) or {}
+	local intoData = self:GetControllerData(intoIndex) or {}
+
+	-- start from the target's parts/custom meshes, keeping its material/color/etc.
+	local merged = { custom = {} }
+	for i = 1, #intoData do
+		merged[#merged + 1] = intoData[i]
+	end
+	if intoData.custom then
+		for crc, data in pairs(intoData.custom) do
+			merged.custom[crc] = data
+		end
+	end
+
+	-- append the source's parts/custom meshes on top
+	for i = 1, #fromData do
+		merged[#merged + 1] = fromData[i]
+	end
+	if fromData.custom then
+		for crc, data in pairs(fromData.custom) do
+			merged.custom[crc] = data
+		end
+	end
+
+	-- write the combined partlist to the target, then delete the source controller
+	if #merged > 0 then
+		self:SetControllerData(intoIndex, merged)
+	else
+		self:ResetControllerData(intoIndex)
+	end
+	self:RemoveController(fromIndex)
+
+	return true
+end
+
 function ENT:SendControllers(syncwith)
 	net.Start("prop2mesh_sync")
 
