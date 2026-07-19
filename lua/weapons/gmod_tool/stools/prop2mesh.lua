@@ -896,14 +896,19 @@ local function BuildPanel_Profiler(self)
 					root = tree:AddNode(root, "icon16/user.png"),
 					num_mdls = 0,
 					num_tris = 0,
+					num_verts = 0,
 					num_ctrl = 0,
 					num_ents = 0,
+					num_size = 0,
+					seen_crc = {},
 				}
 
 				sdata.node_mdls = sdata.root:AddNode("", "icon16/bullet_black.png")
 				sdata.node_tris = sdata.root:AddNode("", "icon16/bullet_black.png")
+				sdata.node_verts = sdata.root:AddNode("", "icon16/bullet_black.png")
 				sdata.node_ctrl = sdata.root:AddNode("", "icon16/bullet_black.png")
 				sdata.node_ents = sdata.root:AddNode("", "icon16/bullet_black.png")
+				sdata.node_size = sdata.root:AddNode("", "icon16/bullet_black.png")
 				sdata.root:SetExpanded(true, true)
 
 				struct[root] = sdata
@@ -922,11 +927,22 @@ local function BuildPanel_Profiler(self)
 				if pcount and vcount then
 					sdata.num_mdls = sdata.num_mdls + pcount
 					sdata.num_tris = sdata.num_tris + vcount / 3
+					sdata.num_verts = sdata.num_verts + vcount
+				end
+
+				if info.crc and not sdata.seen_crc[info.crc] then
+					sdata.seen_crc[info.crc] = true
+					local zip = prop2mesh.getMeshData(info.crc)
+					if zip then
+						sdata.num_size = sdata.num_size + #zip
+					end
 				end
 			end
 
 			sdata.node_mdls:SetText(string.format("%d total models", sdata.num_mdls))
 			sdata.node_tris:SetText(string.format("%d total triangles", sdata.num_tris))
+			sdata.node_verts:SetText(string.format("%d total vertices", sdata.num_verts))
+			sdata.node_size:SetText(string.format("%s total file size", string.NiceSize(sdata.num_size)))
 		end
 	end
 
