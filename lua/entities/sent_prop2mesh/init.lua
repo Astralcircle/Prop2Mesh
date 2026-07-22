@@ -381,6 +381,58 @@ function ENT:MergeControllers(fromIndex, intoIndex)
 	return true
 end
 
+function ENT:MergeEntities(other)
+	-- the target must be a different, valid prop2mesh controller entity
+	if not prop2mesh.isValid(other) or other == self then return false end
+	if not next(self.prop2mesh_controllers) then return false end
+
+	local frompos, fromang = self:GetPos(), self:GetAngles()
+	local intopos, intoang = other:GetPos(), other:GetAngles()
+
+	for index, info in ipairs(self.prop2mesh_controllers) do
+		-- add a matching controller on the target and copy this one's appearance
+		other:AddController()
+		local newIndex = #other.prop2mesh_controllers
+
+		other:SetControllerCol(newIndex, info.col)
+		other:SetControllerMat(newIndex, info.mat)
+		other:SetControllerUVS(newIndex, info.uvs)
+		other:SetControllerBump(newIndex, info.bump)
+		other:SetControllerScale(newIndex, info.scale)
+
+		if info.clips then
+			for _, clip in ipairs(info.clips) do
+				other:AddControllerClip(newIndex, unpack(clip))
+			end
+		end
+
+		if info.name then
+			other:SetControllerName(newIndex, info.name)
+		end
+
+		-- transform mesh parts into new controller's frame.
+		-- positions are multiplied by scale, so need to undo that first.
+		local partlist = self:GetControllerData(index)
+		if partlist then
+			local sx, sy, sz = info.scale.x, info.scale.y, info.scale.z
+			for _, part in ipairs(partlist) do
+				local pos = Vector(part.pos.x * sx, part.pos.y * sy, part.pos.z * sz)
+				local wpos, wang = LocalToWorld(pos, part.ang, frompos, fromang)
+				local lpos, lang = WorldToLocal(wpos, wang, intopos, intoang)
+				part.pos = Vector(sx ~= 0 and lpos.x / sx or 0, sy ~= 0 and lpos.y / sy or 0, sz ~= 0 and lpos.z / sz or 0)
+				part.ang = lang
+			end
+			other:SetControllerData(newIndex, partlist)
+		end
+	end
+
+	other.prop2mesh_sync = true
+
+	self:Remove()
+
+	return true
+end
+
 function ENT:SendControllers(syncwith)
 	net.Start("prop2mesh_sync")
 

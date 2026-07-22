@@ -150,3 +150,71 @@ properties.Add("prop2mesh", {
 		option:SetText("Export all E2M as .obj")
 	end,
 })
+
+
+-- Merge a prop2mesh entity into another: move all controllers over, then remove the source
+properties.Add("prop2mesh_merge", {
+	MenuLabel     = "Merge prop2mesh into",
+	MenuIcon      = "icon16/chart_organisation.png",
+	PrependSpacer = false,
+	Order         = 3002,
+
+	Filter = function(self, ent, pl)
+		if not IsValid(ent) then return false end
+		if not prop2mesh.isValid(ent) then return false end
+		if not gamemode.Call("CanProperty", pl, "prop2mesh", ent) then return false end
+		return next(ent.prop2mesh_controllers) ~= nil
+	end,
+
+	GetTargets = function(self, ent, pl)
+		local targets = {}
+		for _, other in ipairs(ents.FindByClass("sent_prop2mesh")) do
+			if other ~= ent and self:Filter(other, pl) then
+				targets[#targets + 1] = other
+			end
+		end
+		return targets
+	end,
+
+	Action = function(self, ent) end,
+
+	MenuOpen = function(self, option, ent, tr)
+		local submenu = option:AddSubMenu()
+		local targets = self:GetTargets(ent, LocalPlayer())
+
+		if not next(targets) then
+			submenu:AddOption("(no other prop2mesh entities)", function() end):SetIcon("icon16/cross.png")
+			return
+		end
+
+		for _, other in ipairs(targets) do
+			local count = #other.prop2mesh_controllers
+			local label = string.format("Entity [%d] (%d controller%s)", other:EntIndex(), count, count == 1 and "" or "s")
+
+			submenu:AddOption(label, function()
+				Derma_Query(
+					"All controllers will be moved onto the target entity and this entity will be removed.\nIf your controllers are misaligned and have non uniform scaling, this may not work well.",
+					string.format("Merge this prop2mesh into Entity [%d]?", other:EntIndex()),
+					"Yes", function()
+						self:MsgStart()
+						net.WriteEntity(ent)
+						net.WriteEntity(other)
+						self:MsgEnd()
+					end,
+					"No", function() end
+				)
+			end):SetIcon("icon16/bullet_black.png")
+		end
+	end,
+
+	Receive = function(self, len, pl) -- SERVER
+		local from = net.ReadEntity()
+		local into = net.ReadEntity()
+
+		if from == into then return end
+		if not self:Filter(from, pl) then return end
+		if not self:Filter(into, pl) then return end
+
+		from:MergeEntities(into)
+	end,
+})
