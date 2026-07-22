@@ -283,11 +283,9 @@ if SERVER then
 	end
 
 	function TOOL:Deploy()
-		timer.Simple(0.1, function()
-			if IsValid(self.p2m.ent) then
-				self:SetStage(1)
-			end
-		end)
+		if IsValid(self.p2m.ent) then
+			self:SetStage(1)
+		end
 	end
 
 	function TOOL:SetDataByIndex(add)
