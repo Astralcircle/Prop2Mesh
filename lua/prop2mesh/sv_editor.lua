@@ -54,6 +54,9 @@ local safeControllerValues = {
 	remove = function(val)
 		return tobool(val)
 	end,
+	mergeinto = function(val)
+		return isnumber(val) and math.floor(val) or nil
+	end,
 }
 
 local safePartValues = {
@@ -118,6 +121,8 @@ function prop2mesh.applyUpdate(self, pl, updateHandler)
 		for controllerID, edits in pairs(updateHandler.controllerAltered) do
 			if edits.remove then
 				self:RemoveController(controllerID)
+			elseif edits.mergeinto then
+				self:MergeControllers(controllerID, edits.mergeinto)
 			else
 				if edits.uvs then
 					self:SetControllerUVS(controllerID, edits.uvs)
