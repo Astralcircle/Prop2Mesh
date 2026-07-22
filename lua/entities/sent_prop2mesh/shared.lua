@@ -163,7 +163,7 @@ properties.Add("prop2mesh_merge", {
 		if not IsValid(ent) then return false end
 		if not prop2mesh.isValid(ent) then return false end
 		if not gamemode.Call("CanProperty", pl, "prop2mesh", ent) then return false end
-		if self:CPPIGetOwner() ~= pl then return false end
+		if CPPI and self:CPPIGetOwner() ~= pl then return false end
 		return next(ent.prop2mesh_controllers) ~= nil
 	end,
 
