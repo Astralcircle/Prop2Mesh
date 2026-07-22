@@ -1122,6 +1122,41 @@ local function conmenu(frame, conroot)
 			end
 		end ):SetIcon( "icon16/bullet_black.png" )
 
+		local mergesub, mergeopt = menu:AddSubMenu("merge into")
+		mergeopt:SetIcon("icon16/chart_organisation.png")
+
+		-- Build a list of all other controllers to merge into, excluding the current one
+		for k, v in pairs(frame.conroots) do
+			if k ~= conroot.num then
+				local target = v.conroot
+				local label = target.info.name or string.format("controller %d", target.num)
+
+				mergesub:AddOption(label, function()
+					local pnl = Derma_Query(string.format("This will IGNORE any unconfirmed changes to all controllers, and match [%s]'s material, color, and other appearance settings.", label), string.format("Merge controller [%s] into [%s]?", conroot.info.name or conroot.num, label), "Yes", function()
+						-- discard unconfirmed edits so indices aren't left stale once the merge shifts controllers
+						for pk, pv in pairs(frame.updates) do pv.add, pv.mod, pv.set = {}, {}, {} end
+
+						updates.set.mergeinto = target.num
+
+						frame.btnConfirm:DoClick()
+					end, "No", function() end)
+
+					pnl.lblTitle:SetFont(editor_font)
+					pnl.lblTitle:SetTextColor(color_white)
+
+					local time = SysTime()
+
+					pnl.Paint = function(_, w, h)
+						Derma_DrawBackgroundBlur(pnl, time)
+						surface.SetDrawColor(theme.colorMain)
+						surface.DrawRect(0, 0, w, h)
+						surface.SetDrawColor(0, 0, 0)
+						surface.DrawOutlinedRect(0, 0, w, h)
+					end
+				end):SetIcon("icon16/bullet_black.png")
+			end
+		end
+
 		menu:AddOption("set controller name", function()
 			local pnl = Derma_StringRequest(string.format("Set name of controller [%s]?", conroot.info.name or conroot.num), "This will CONFIRM any other changes to all controllers.", conroot.info.name or "", function(text)
 				if text == "" or conroot.info.name == text then
