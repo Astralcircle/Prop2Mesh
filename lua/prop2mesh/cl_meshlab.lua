@@ -982,7 +982,7 @@ local function getMeshFromData(data, uniqueID, direct, split)
 			end
 		elseif partnext.primitive then
 			local valid, opv = pcall(getVertsFromPrimitive, partnext, meshtex, meshbump, vmins, vmaxs, direct)
-			if valid and opv then
+			if valid then
 				partverts = opv
 			else
 				print(opv)
