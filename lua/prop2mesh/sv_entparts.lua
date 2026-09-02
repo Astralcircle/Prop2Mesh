@@ -108,7 +108,10 @@ local function basic_info(partlist, ent, worldpos, worldang)
 		part.scale = scale
 	end
 
-	local clips = ent.ClipData or ent.EntityMods and ent.EntityMods.clips
+	append_improved_clips(part, ent)
+
+	-- Improved clipping also saves to proper clipping format, so if iclips exist, don't run the conversion.
+	local clips = not part.iclips and (ent.ClipData or ent.EntityMods and ent.EntityMods.clips)
 	if clips then
 		local pclips = {}
 		for _, clip in ipairs(clips) do
@@ -127,8 +130,6 @@ local function basic_info(partlist, ent, worldpos, worldang)
 			part.clips = pclips
 		end
 	end
-
-	append_improved_clips(part, ent)
 
 	return part
 end
