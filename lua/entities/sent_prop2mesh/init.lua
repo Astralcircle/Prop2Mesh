@@ -242,10 +242,6 @@ function ENT:PreEntityCopy()
 	})
 end
 
-function ENT:PostEntityCopy()
-	duplicator.ClearEntityModifier(self, "prop2mesh")
-end
-
 function ENT:PostEntityPaste()
 	duplicator.ClearEntityModifier(self, "prop2mesh")
 end
