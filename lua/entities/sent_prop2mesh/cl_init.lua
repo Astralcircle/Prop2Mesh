@@ -299,7 +299,7 @@ do
 	local render_PopCustomClipPlane = render.PopCustomClipPlane
 	local render_PushCustomClipPlane = render.PushCustomClipPlane
 
-	renderOverride = function(self)
+	renderOverride = function(self, flags)
 		local prev = render_EnableClipping(true)
 
 		local pos = Ent_GetPos(self)
@@ -315,7 +315,7 @@ do
 			render_PushCustomClipPlane(norm, Vec_Dot(norm, pos + norm * clip.d))
 		end
 
-		Ent_DrawModel(self)
+		Ent_DrawModel(self, flags)
 
 		-- if true then
 		-- 	render.CullMode(MATERIAL_CULLMODE_CW)
@@ -345,7 +345,7 @@ do
 	local render_ModelMaterialOverride = render.ModelMaterialOverride
 	local render_SuppressEngineLighting = render.SuppressEngineLighting
 
-	drawModel = function(self)
+	drawModel = function(self, flags)
 		local selfTable = Ent_GetTable( self )
 
 		if draw_disable then
@@ -367,12 +367,12 @@ do
 			render_SetColorModulation(1, 1, 1)
 			render_SuppressEngineLighting(true)
 			render_ModelMaterialOverride(wireframe)
-			Ent_DrawModel(self)
+			Ent_DrawModel(self, flags)
 			render_SetBlend(1)
 			render_SuppressEngineLighting(false)
 			render_ModelMaterialOverride()
 		else
-			Ent_DrawModel(self)
+			Ent_DrawModel(self, flags)
 		end
 
 		local complex = getComplex(selfTable.crc, selfTable.uniqueID)
