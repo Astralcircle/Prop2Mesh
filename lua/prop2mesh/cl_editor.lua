@@ -50,8 +50,8 @@ local function HideIcons() return false end
 
 ]]
 local filecache_data = {}
-local filecache_keys = {}
 local objImportUVs = false
+prop2mesh.filecache_keys = {}
 
 local upstreams = {}
 
@@ -59,11 +59,11 @@ net.Receive("prop2mesh_upload_start", function(len)
 	local eid = net.ReadUInt(16)
 	for i = 1, net.ReadUInt(8) do
 		local crc = net.ReadString()
-		if filecache_keys[crc] and filecache_keys[crc].data then
+		if prop2mesh.filecache_keys[crc] and prop2mesh.filecache_keys[crc].data then
 			net.Start("prop2mesh_upload")
 			net.WriteUInt(eid, 16)
 			net.WriteString(crc)
-			upstreams[crc] = prop2mesh.WriteStream(filecache_keys[crc].data)
+			upstreams[crc] = net.WriteStream(prop2mesh.filecache_keys[crc].data)
 			net.SendToServer()
 		end
 	end
@@ -78,7 +78,7 @@ local function upstreamProgress()
 			if client.finished then
 				upstreams[crc] = nil
 			else
-				local progress = client.progress / stream.numchunks
+				local progress = client.progress / #stream.chunks
 				if max < progress then
 					max = progress
 				end
@@ -936,6 +936,11 @@ local function attach(pathnode)
 	local filestr = file.Read(pathnode.path)
 	local filecrc = tostring(util.CRC(filestr)) .. (objImportUVs and "_uv" or "")
 
+	if not filestr then
+		chat.AddText(Color(255, 125, 125), "can't read file!")
+		return
+	end
+
 	if not filecache_data[filecrc] then
 		local valid, contents = pcall(formatOBJ, filestr, objImportUVs)
 		if not valid then
@@ -948,7 +953,7 @@ local function attach(pathnode)
 		end
 		local crc = tostring(util.CRC(contents))
 		filecache_data[filecrc] = { crc = crc, data = util.Compress(contents) }
-		filecache_keys[crc] = filecache_data[filecrc]
+		prop2mesh.filecache_keys[crc] = filecache_data[filecrc]
 	end
 	if not filecache_data[filecrc] then
 		chat.AddText(Color(255, 125, 125), "unexpected error!")

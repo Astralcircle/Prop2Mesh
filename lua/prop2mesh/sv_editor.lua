@@ -15,7 +15,7 @@ local isnumber = isnumber
 local isvector = isvector
 local isangle = isangle
 
-local function canUpload(pl, self)
+function prop2mesh.canUpload(pl, self)
 	if not IsValid(pl) then return false end
 	if not prop2mesh.isValid(self) then return false end
 	if CPPI and self:CPPIGetOwner() ~= pl then return false end
@@ -116,7 +116,7 @@ local safePartValues = {
 -- 	end
 -- end
 
-local function applyUpdate(self, pl, updateHandler)
+function prop2mesh.applyUpdate(self, pl, updateHandler)
 	if updateHandler.controllerAltered then
 		for controllerID, edits in pairs(updateHandler.controllerAltered) do
 			if edits.remove then
@@ -258,7 +258,7 @@ local function prepareUpdate(self, pl, set, add, mod)
 			prop2mesh.log(string.format("[%s] requesting %d uploads", tostring(pl), #keys))
 		end
 	else
-		applyUpdate(self, pl, updateHandler)
+		prop2mesh.applyUpdate(self, pl, updateHandler)
 	end
 end
 
@@ -273,7 +273,7 @@ net.Receive("prop2mesh_upload_start", function(len, pl)
 	pl.prop2mesh_antispam = SysTime()
 
 	local self = Entity(net.ReadUInt(16) or 0)
-	if not canUpload(pl, self) then
+	if not prop2mesh.canUpload(pl, self) then
 		return
 	end
 	if self.prop2mesh_upload_queue then
@@ -293,15 +293,15 @@ end)
 
 net.Receive("prop2mesh_upload", function(len, pl)
 	local self = Entity(net.ReadUInt(16) or 0)
-	if not canUpload(pl, self) then
+	if not prop2mesh.canUpload(pl, self) then
 		return
 	end
 
 	local uploadCRC = net.ReadString()
 	local updateHandler = self.prop2mesh_upload_queue
 
-	prop2mesh.ReadStream(pl, function(data)
-		if not canUpload(pl, self) then
+	net.ReadStream(pl, function(data)
+		if not prop2mesh.canUpload(pl, self) then
 			return
 		end
 
@@ -329,7 +329,7 @@ net.Receive("prop2mesh_upload", function(len, pl)
 			end
 		end
 
-		applyUpdate(self, pl, updateHandler)
+		prop2mesh.applyUpdate(self, pl, updateHandler)
 	end)
 end)
 
