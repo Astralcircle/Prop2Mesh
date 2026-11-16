@@ -934,12 +934,13 @@ end
 local function attach(pathnode)
 	local filepath = pathnode.path
 	local filestr = file.Read(pathnode.path)
-	local filecrc = tostring(util.CRC(filestr)) .. (objImportUVs and "_uv" or "")
 
 	if not filestr then
 		chat.AddText(Color(255, 125, 125), "can't read file!")
 		return
 	end
+
+	local filecrc = tostring(util.CRC(filestr)) .. (objImportUVs and "_uv" or "")
 
 	if not filecache_data[filecrc] then
 		local valid, contents = pcall(formatOBJ, filestr, objImportUVs)
